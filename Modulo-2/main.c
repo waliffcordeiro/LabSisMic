@@ -14,16 +14,18 @@ int main(void)
 	TB0CTL = TBSSEL__SMCLK | MC__CONTINOUS; // Timer
 	PM5CTL0 &= ~LOCKLPM5; // Ativar os pinos (desabilitar modo de alto impedância)
 	
-	volatile int RED, GREEN, BLUE;
+	unsigned int RED, GREEN, BLUE;
 
-	setPin(P6_0, OUTPUT);
-	setPin(P6_1, OUTPUT);
-	setPin(P6_2, OUTPUT);
-	setPin(P6_3, OUTPUT);
-	setPin(P1_2, INPUT); // Receber os períodos
-	// Set LED
-	setPin(P1_0, OUTPUT);
-	setPin(P6_6, OUTPUT);
+	setPin(P6_0, OUTPUT);  // S0 - Select Freq.
+	setPin(P6_1, OUTPUT);  // S1 - Select Freq.
+	setPin(P6_2, OUTPUT);  // S2 - Select Color
+	setPin(P6_3, OUTPUT);  // S3 - Select Color
+	setPin(P1_2, INPUT);   // OUT do sensor de cor
+	setPin(P1_0, OUTPUT);  // Led vermelho
+	setPin(P6_6, OUTPUT);  // Led verde
+
+	writePin(P6_0, HIGH); // Selecionando frequência de 20% - 5 Leituras
+	writePin(P6_1, LOW);
 
 	while(readPin(P1_2) == HIGH); // Garantir que as leituras comecem na borda de subida
 
@@ -38,7 +40,7 @@ int main(void)
             writePin(P6_6, LOW);
 	    }
 	    else if((BLUE < RED) && (BLUE < GREEN)){
-            // Acende Azul
+            // Acende ambos
 	        writePin(P1_0, HIGH);
 	        writePin(P6_6, HIGH);
         }
@@ -75,7 +77,7 @@ int periodo(char cor){
         break;
     }
 
-    for(i=0; i<10; i++) { // Pega 10 leituras, ignorando as 2 primeiras
+    for(i=0; i<20; i++) { // Pega 20 leituras, ignorando as 2 primeiras
         while(readPin(P1_2) == LOW); // Enquanto não tem borda de descida (período)
         timeStart = timeEnd;
         timeEnd = TB0R;
@@ -90,7 +92,6 @@ int periodo(char cor){
         while(readPin(P1_2) == HIGH); // Enquanto não tem borda de subida (período)
     }
 
-    periodo = ((int)(periodo/8));
     return periodo; // Retorna a média dos períodos obtidos
 
 }
