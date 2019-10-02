@@ -11,7 +11,8 @@ int main(void)
 {
 
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-	PM5CTL0 &= ~LOCKLPM5;
+	TA0CTL = TASSEL__SMCLK | MC__CONTINOUS; // Timer
+	PM5CTL0 &= ~LOCKLPM5; // Ativar os pinos (desabilitar modo de alto impedância)
 	
 	int RED, GREEN, BLUE;
 	long int timeStart, timeEnd, dif;
@@ -58,6 +59,10 @@ int periodo(char cor){
             timeStart = timeEnd;
             timeEnd = PB0R;
             dif = timeEnd - timeStart;
+            if(dif < 0) {
+                dif += 0xFFFF;
+                dif += 1;
+            }
         }
     }
 
