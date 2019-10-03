@@ -80,7 +80,7 @@ int periodo(char cor){
         break;
     }
 
-    for(i=0; i<25; i++) {                 // Pega 20 leituras, ignorando as 2 primeiras
+    for(i=0; i<25; i++) {                 // Pega 25 leituras, ignorando as 2 primeiras
         while(readPin(P1_2) == LOW);      // Enquanto não tem borda de descida (período)
         timeStart = timeEnd;              // Time anterior
         timeEnd = TB0R;                   // Time atual
