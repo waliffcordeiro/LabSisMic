@@ -1,7 +1,6 @@
 #include <msp430.h> 
 #include "msp430gpio.h"
 
-
 // Gabriel Porto Oliveira - 18/0058975
 // Waliff Cordeiro Bandeira - 17/0115810
 
@@ -13,9 +12,9 @@ int periodo(char cor);
 int main(void)
 {
 
-	WDTCTL = WDTPW | WDTHOLD;	     // stop watchdog timer
+	WDTCTL = WDTPW | WDTHOLD;	            // stop watchdog timer
 	TB0CTL = TBSSEL__SMCLK | MC__CONTINOUS; // Timer
-	PM5CTL0 &= ~LOCKLPM5;            // Ativar os pinos (desabilitar modo de alto impedância)
+	PM5CTL0 &= ~LOCKLPM5;                   // Ativar os pinos (desabilitar modo de alto impedância)
 	
 	unsigned int RED, GREEN, BLUE;
 
@@ -58,7 +57,7 @@ int main(void)
 }
 
 int periodo(char cor){
-    int i, periodo = 0;
+    int REPETE25 = 25, periodo = 0;
     unsigned int timeStart = 0, timeEnd = 0;
     long int dif = 0;
 
@@ -80,11 +79,11 @@ int periodo(char cor){
         break;
     }
 
-    for(i=0; i<25; i++) {                 // Pega 25 leituras, ignorando as 2 primeiras
-        while(readPin(P1_2) == LOW);      // Enquanto não tem borda de descida (período)
+    while(REPETE25--) {                   // Pega 25 leituras, ignorando as 2 primeiras
+        while(readPin(P1_2) == LOW);      // Enquanto não tem borda de descida
         timeStart = timeEnd;              // Time anterior
         timeEnd = TB0R;                   // Time atual
-        if(i >= 2) {
+        if(REPETE25 <= 23) {
             dif = (timeEnd - timeStart);
             if(dif < 0) {                 // Se for tempo negativo, soma a correção
                 dif += 0xFFFF;
@@ -92,9 +91,9 @@ int periodo(char cor){
             }
             periodo += dif;               // O período será a soma de todas leituras
         }
-        while(readPin(P1_2) == HIGH);     // Enquanto não tem borda de subida (período)
+        while(readPin(P1_2) == HIGH);     // Enquanto não tem borda de subida
     }
 
-    return periodo;                       // Retorna a média dos períodos obtidos
+    return periodo;                       // Retorna a soma da leitura de 25 períodos
 
 }
